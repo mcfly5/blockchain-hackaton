@@ -9,13 +9,13 @@ contract SuperContract {
     struct Loan {
         bytes32 name;
         address borrower;
-        uint amount; //Выданная сумма - 10000
-        uint current; //Выплачено - 9000
-        uint quantityOfPeriods; //Кол-во периодов - 10
+        uint amount; 
+        uint current;
+        uint quantityOfPeriods; 
         uint currentIteration;
-        uint period; //Период 
-        uint time; //
-        uint start; //Дата начала
+        uint period; 
+        uint time; 
+        uint start;
         uint finish;
         State status;
     }
@@ -96,6 +96,7 @@ contract SuperContract {
     function pay() checkAmount onlyBorrower payable returns (bool) {
         Pay(msg.sender, msg.value);
         uint _value = loan.current;
+ 
         //Need to add SafeMath
 
         loan.current = _value + msg.value;
@@ -109,9 +110,9 @@ contract SuperContract {
         return true;
     }
 
+//Extended checking. Not implemented yet 
     function checkExtend(address _who) constant returns (State status) {
         State currentStatus = loan.status;
- //Нужно прописать проверки
         if (false) {
             ChangeStatus(_who, State.Suspended);
             loan.status = State.Suspended;
@@ -125,6 +126,7 @@ contract SuperContract {
 
         return loan.status;
     }
+
     function blockAccount(address _who) {}
 
     function getCurrent() constant returns (uint currentAmount) {
@@ -146,20 +148,24 @@ contract SuperContract {
         loan.status = State.Locked;
     } 
 
-    function withdraw(address _who) onlyBorrower {
+    function withdraw(address _who) onlyBorrower returns (bool) {
         require(loan.status == State.Finished);
         require(loan.current > loan.amount);
 
         //Need to add SafeMath
+        uint oldCurrent;
         uint refund = loan.current - loan.amount;
 
         Withdrawal(_who, refund);
         loan.current = loan.amount;
-
-/*        if (msg.sender.) {
-
+        
+        //withdraw ..
+        if (!msg.sender.send(refund)) {
+            loan.current = oldCurrent;
+            return false;
         }
-*/
+  
+
     }
 
 
